@@ -21,6 +21,7 @@ df.dropna(inplace=True)
 
 # Drop rows which don't contain price
 df = df[df.iloc[:, -1] != 'Po dogovoru']
+df = df[df.iloc[:, -1] != 'Na upit']
 
 # Convert strings with characters and numbers to just numbers and cast as int
 def convert_string_to_int(distance_str):
