@@ -86,8 +86,37 @@ def compute_gradient(X, y, w, b):
         
     return dj_db, dj_dw
 
+def compute_cost_linear_reg(X, y, w, b, lambda_ = 1):
+    """
+    Computes the cost over all examples
+    Args:
+      X (ndarray (m,n): Data, m examples with n features
+      y (ndarray (m,)): target values
+      w (ndarray (n,)): model parameters  
+      b (scalar)      : model parameter
+      lambda_ (scalar): Controls amount of regularization
+    Returns:
+      total_cost (scalar):  cost 
+    """
+
+    m  = X.shape[0]
+    n  = len(w)
+    cost = 0.
+    for i in range(m):
+        f_wb_i = np.dot(X[i], w) + b                                   #(n,)(n,)=scalar, see np.dot
+        cost = cost + (f_wb_i - y[i])**2                               #scalar             
+    cost = cost / (2 * m)                                              #scalar  
+ 
+    reg_cost = 0
+    for j in range(n):
+        reg_cost += (w[j]**2)                                          #scalar
+    reg_cost = (lambda_/(2*m)) * reg_cost                              #scalar
+    
+    total_cost = cost + reg_cost                                       #scalar
+    return total_cost    
+
 # Run gradient descent
-def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, num_iters): 
+def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, num_iters, lambda_ = 1): 
     """
     Performs batch gradient descent to learn w and b. Updates w and b by taking 
     num_iters gradient steps with learning rate alpha
@@ -123,7 +152,7 @@ def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, 
       
         # Save cost J at each iteration
         if i<100000:      # prevent resource exhaustion 
-            J_history.append( cost_function(X, y, w, b))
+            J_history.append( cost_function(X, y, w, b, lambda_))
 
         # Print cost every at intervals 10 times or as many iterations if < 10
         if i% math.ceil(num_iters / 10) == 0:
