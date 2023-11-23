@@ -86,7 +86,7 @@ def compute_gradient(X, y, w, b):
         
     return dj_db, dj_dw
 
-def compute_cost_linear_reg(X, y, w, b, lambda_ = 1):
+def compute_cost_linear_reg(X, y, w, b, lambda_):
     """
     Computes the cost over all examples
     Args:
@@ -98,15 +98,14 @@ def compute_cost_linear_reg(X, y, w, b, lambda_ = 1):
     Returns:
       total_cost (scalar):  cost 
     """
-
     m  = X.shape[0]
     n  = len(w)
     cost = 0.
     for i in range(m):
         f_wb_i = np.dot(X[i], w) + b                                   #(n,)(n,)=scalar, see np.dot
         cost = cost + (f_wb_i - y[i])**2                               #scalar             
-    cost = cost / (2 * m)                                              #scalar  
- 
+    cost = cost / (2 * m)                                              #scalar      
+
     reg_cost = 0
     for j in range(n):
         reg_cost += (w[j]**2)                                          #scalar
@@ -116,7 +115,7 @@ def compute_cost_linear_reg(X, y, w, b, lambda_ = 1):
     return total_cost    
 
 # Run gradient descent
-def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, num_iters, lambda_ = 1): 
+def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, num_iters, lambda_): 
     """
     Performs batch gradient descent to learn w and b. Updates w and b by taking 
     num_iters gradient steps with learning rate alpha
@@ -135,7 +134,6 @@ def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, 
       w (ndarray (n,)) : Updated values of parameters 
       b (scalar)       : Updated value of parameter 
       """
-    
     # An array to store cost J and w's at each iteration primarily for graphing later
     J_history = []
     w = copy.deepcopy(w_in)  #avoid modifying global w within function

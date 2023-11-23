@@ -1,22 +1,44 @@
 import numpy as np
 
-def zscore_normalize_features(X):
+def zscore_normalize_features(X, num_cols=5):
     """
-    computes  X, zcore normalized by column
+    Computes X, z-score normalized by column for the first 'num_cols' columns.
     
     Args:
-      X (ndarray (m,n))     : input data, m examples, n features
+      X (ndarray (m,n)): input data, m examples, n features
+      num_cols (int): number of columns to normalize
+    
+    Returns:
+      X_norm (ndarray (m,n)): input normalized by column for the first 'num_cols' columns
+      mu (ndarray (n,)): mean of each feature for the first 'num_cols' columns
+      sigma (ndarray (n,)): standard deviation of each feature for the first 'num_cols' columns
+    """
+     # find the mean of each column/feature for the first 'num_cols' columns
+    mu = np.mean(X[:, :num_cols], axis=0)  # mu will have shape (num_cols,)
+    # find the standard deviation of each column/feature for the first 'num_cols' columns
+    sigma = np.std(X[:, :num_cols], axis=0)  # sigma will have shape (num_cols,)
+    # element-wise, subtract mu for that column from each example, divide by std for that column
+    X_norm = np.concatenate([(X[:, :num_cols] - mu) / sigma, X[:, num_cols:]], axis=1)
+
+    return X_norm, mu, sigma
+
+def zscore_normalize_target(y):
+    """
+    computes  Y, zcore normalized
+    
+    Args:
+      y (ndarray (m,))     : input data, m examples
       
     Returns:
-      X_norm (ndarray (m,n)): input normalized by column
-      mu (ndarray (n,))     : mean of each feature
-      sigma (ndarray (n,))  : standard deviation of each feature
+      y_norm (ndarray (m,n)): input normalized by column
+      mu_Y (ndarray (n,))     : mean of each feature
+      sigma_Y (ndarray (n,))  : standard deviation of each feature
     """
     # find the mean of each column/feature
-    mu     = np.mean(X, axis=0)                 # mu will have shape (n,)
+    mu_Y     = np.mean(y)                 # mu will have shape (n,)
     # find the standard deviation of each column/feature
-    sigma  = np.std(X, axis=0)                  # sigma will have shape (n,)
+    sigma_Y  = np.std(y)                  # sigma will have shape (n,)
     # element-wise, subtract mu for that column from each example, divide by std for that column
-    X_norm = (X - mu) / sigma      
+    y_norm = (y - mu_Y) / sigma_Y      
 
-    return (X_norm, mu, sigma)
+    return (y_norm, mu_Y, sigma_Y)
