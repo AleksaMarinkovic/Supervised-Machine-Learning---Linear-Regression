@@ -22,6 +22,27 @@ def zscore_normalize_features(X, num_cols=5):
 
     return X_norm, mu, sigma
 
+
+def reverse_zscore_normalize_features(X_norm, mu, sigma, num_cols=5):
+    """
+    Reverts z-score normalization for the first 'num_cols' columns using mean and standard deviation.
+
+    Args:
+      X_norm (ndarray (m,n)): z-score normalized data, m examples, n features
+      mu (ndarray (n,)): mean of each feature for the first 'num_cols' columns
+      sigma (ndarray (n,)): standard deviation of each feature for the first 'num_cols' columns
+      num_cols (int): number of columns to revert normalization
+
+    Returns:
+      X_original (ndarray (m,n)): original data for the first 'num_cols' columns
+    """
+    # Reverse normalization: multiply by std and add back the mean
+    X_original = X_norm.copy()  # Avoid modifying the original array
+    X_original[:, :num_cols] = X_original[:, :num_cols] * sigma + mu
+
+    return X_original
+
+
 def zscore_normalize_target(y):
     """
     computes  Y, zcore normalized
