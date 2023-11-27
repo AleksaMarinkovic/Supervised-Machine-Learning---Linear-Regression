@@ -1,14 +1,16 @@
 import numpy as np
 from plots import plot_with_column
 from normalization import reverse_zscore_normalize_features
-from linearRegression import compute_gradient, gradient_descent, compute_cost_linear_reg
-from preprocessing import get_train_and_test_data, plotHistograms, plotBarGraphs
+from linearRegression import compute_gradient, gradient_descent, compute_cost_linear_reg, compute_gradient_reg
+from preprocessing import get_train_and_test_data, plotHistograms, plotBarGraphs, showHeatMap
 import pandas as pd
+from sklearn.metrics import r2_score
 np.set_printoptions(threshold=np.inf)
 
 X_train, X_test, y_train, y_test, mu_train, sigma_train, mu_test, sigma_test, X_original, y_original, original_column_names, preprocessed_column_names = get_train_and_test_data()
-plotHistograms(pd.concat([X_original, y_original], ignore_index=True), 2,2,["Year","Mileage","Power","Price"],["Year","KM","KW","Euros"])
-plotBarGraphs(X_original,5,3, ['Manufacturer', 'Chasis' ,'Fuel type', 'Emissions', 'Drivetrain', 'Transmission', 'Number of doors', 'Number of seats', 'Wheel side','Air conditioning', 'Color', 'Registration', 'Damage'])
+#plotHistograms(pd.concat([X_original, y_original], ignore_index=True), 2,2,["Year","Mileage","Power","Price"],["Year","KM","KW","Euros"])
+#plotBarGraphs(X_original,5,3, ['Manufacturer', 'Chasis' ,'Fuel type', 'Emissions', 'Drivetrain', 'Transmission', 'Number of doors', 'Number of seats', 'Wheel side','Air conditioning', 'Color', 'Registration', 'Damage'])
+
 # initial_w = np.array([ 2429.75555231,  -119.04228613,  1465.90150984,  -406.51050697,
 #   1443.71331652,  -749.95538199,  -274.79170187,   -82.6006433 ,
 #   -311.05303765,  -473.63142805,   -28.3923123 ,  -259.61619587,
@@ -39,34 +41,39 @@ plotBarGraphs(X_original,5,3, ['Manufacturer', 'Chasis' ,'Fuel type', 'Emissions
 #    -40.20091102])
 initial_w = np.zeros(X_train.shape[1])
 initial_b = 0
-iterations = 1000
-alpha = 1.0e-3
-lambda_ = 1.0e0
-w_final, b_final, J_hist = gradient_descent(X_train, y_train, initial_w, initial_b, compute_cost_linear_reg, compute_gradient, alpha, iterations, lambda_)
+iterations = 10000
+alpha = 2.3e-3
+lambda_ = 0e0
+w_final, b_final, J_hist = gradient_descent(X_train, y_train, initial_w, initial_b, compute_cost_linear_reg, compute_gradient_reg, alpha, iterations, lambda_)
 
 # For displaying purposes
 X_train_reversed = reverse_zscore_normalize_features(X_train,mu_train, sigma_train, 3)
 X_test_reversed = reverse_zscore_normalize_features(X_test,mu_test, sigma_test, 3)
 
 train_percentage = []
+y_predicted_train = np.array([])
 for i in range(X_train_reversed.shape[0]):
-    y_predicted_train = np.dot(X_train[i], w_final) + b_final
-    print(f"\033[93mtrain {i} prediction: {y_predicted_train:0.2f}, target value: {y_train[i]}, year: {X_train_reversed[i,0]}, mileage: {X_train_reversed[i,1]}, power: {X_train_reversed[i,2]}\033[93m")
-    individual_train_percentage = (y_train[i]*100)/y_predicted_train if y_train[i] < y_predicted_train else (y_predicted_train*100)/y_train[i]
+    row = np.dot(X_train[i], w_final) + b_final
+    #print(f"\033[93mtrain {i} prediction: {row:0.2f}, target value: {y_train[i]}, year: {X_train_reversed[i,0]}, mileage: {X_train_reversed[i,1]}, power: {X_train_reversed[i,2]}\033[93m")
+    individual_train_percentage = (y_train[i]*100)/row if y_train[i] < row else (row*100)/y_train[i]
     train_percentage.append(individual_train_percentage)
+    y_predicted_train = np.append(y_predicted_train, np.array(row))
 
 test_percentage = []
+y_predicted_test = np.array([])
 for i in range(X_test_reversed.shape[0]):
-    y_predicted_test = np.dot(X_test[i], w_final) + b_final
-    print(f"\033[94mtest {i} prediction: {y_predicted_test:0.2f}, target value: {y_test[i]}, year: {X_test_reversed[i,0]}, mileage: {X_test_reversed[i,1]}, power: {X_test_reversed[i,2]}\033[94m")
-    individual_test_percentage = (y_test[i]*100)/y_predicted_test if y_test[i] < y_predicted_test else (y_predicted_test*100)/y_test[i]
+    row = np.dot(X_test[i], w_final) + b_final
+    print(f"\033[94mtest {i} prediction: {row:0.2f}, target value: {y_test[i]}, year: {X_test_reversed[i,0]}, mileage: {X_test_reversed[i,1]}, power: {X_test_reversed[i,2]}\033[94m")
+    individual_test_percentage = (y_test[i]*100)/row if y_test[i] < row else (row*100)/y_test[i]
     test_percentage.append(individual_test_percentage)
+    y_predicted_test = np.append(y_predicted_test, np.array(row))
 
 #for i in range(0, x_train_normalized.shape[1]):
 #    plt.scatter(x_train_normalized[:,i], y_train, marker='x', c='r', label="Actual Value"); plt.title(f"Price/{cols_[i]}")
 #    plt.scatter(x_train_normalized[:,i], np.dot(x_train_eg_normalized[:,i], w_final[i]) + b_final, label="Predicted Value", marker='o',c='b'); plt.xlabel("x"); plt.ylabel("y"); plt.legend(); plt.show()
 
 print(f"\033[97mb,w found by gradient descent: {b_final:0.2f},{np.array2string(w_final, separator=', ')}\033[97m")
+
 for i in range(len(preprocessed_column_names)):
     print(f"Weight for '{preprocessed_column_names[i]}': {w_final[i]:0.2f}")
 
@@ -74,9 +81,15 @@ for i in range(len(preprocessed_column_names)):
 #for i in range(0,x_train_normalized.shape[1]):
 #    plot_with_column(x_train_normalized, y_train, i, df.columns[i], f"Price/{df.columns[i]}")
 
+y_predicted_train = y_predicted_train.reshape(-1,1)
+y_predicted_test = y_predicted_test.reshape(-1,1)
 print("\n")
 print("\033[93mTRAIN\033[93m \033[92mMEAN PERCENTAGE: \033[92m")
 print(np.mean(train_percentage))
 print("\033[94mTEST\033[94m \033[92mMEAN PERCENTAGE: \033[92m")
 print(np.mean(test_percentage))
+print("\033[97m")
+
+print(f"\033[96mR2_SCORE={r2_score(y_test,y_predicted_test)}\033[96m")
+print("\n")
 print("\033[97m")

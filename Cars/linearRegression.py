@@ -59,6 +59,37 @@ def compute_cost(X, y, w, b):
     return cost
 
 # Compute gradient, return dj_db and dj_dw
+def compute_gradient_reg(X, y, w, b, lambda_): 
+    """
+    Computes the gradient for linear regression 
+    Args:
+      X (ndarray (m,n)): Data, m examples with n features
+      y (ndarray (m,)) : target values
+      w (ndarray (n,)) : model parameters  
+      b (scalar)       : model parameter
+      
+    Returns:
+      dj_dw (ndarray (n,)): The gradient of the cost w.r.t. the parameters w. 
+      dj_db (scalar):       The gradient of the cost w.r.t. the parameter b. 
+    """
+    m,n = X.shape           #(number of examples, number of features)
+    dj_dw = np.zeros((n,))
+    dj_db = 0.
+
+    for i in range(m):                             
+        err = (np.dot(X[i], w) + b) - y[i]   
+        for j in range(n):                         
+            dj_dw[j] += (err * X[i, j])
+        dj_db = dj_db + err                        
+    dj_dw = dj_dw / m                                
+    dj_db = dj_db / m                                
+    
+    for j in range(n):
+        dj_dw[j] += ((lambda_/m) * w[j])
+
+    return dj_db, dj_dw
+
+# Compute gradient, return dj_db and dj_dw
 def compute_gradient(X, y, w, b): 
     """
     Computes the gradient for linear regression 
@@ -79,7 +110,7 @@ def compute_gradient(X, y, w, b):
     for i in range(m):                             
         err = (np.dot(X[i], w) + b) - y[i]   
         for j in range(n):                         
-            dj_dw[j] = dj_dw[j] + err * X[i, j]    
+            dj_dw[j] += err * X[i, j]
         dj_db = dj_db + err                        
     dj_dw = dj_dw / m                                
     dj_db = dj_db / m                                
@@ -104,13 +135,14 @@ def compute_cost_linear_reg(X, y, w, b, lambda_):
     for i in range(m):
         f_wb_i = np.dot(X[i], w) + b                                   #(n,)(n,)=scalar, see np.dot
         cost = cost + (f_wb_i - y[i])**2                               #scalar             
-    cost = cost / (2 * m)                                              #scalar      
+    cost = cost / (2 * m)                                             #scalar          
+    #cost = math.sqrt(cost / (2 * m))                                   #scalar            
+
 
     reg_cost = 0
     for j in range(n):
         reg_cost += (w[j]**2)                                          #scalar
     reg_cost = (lambda_/(2*m)) * reg_cost                              #scalar
-    
     total_cost = cost + reg_cost                                       #scalar
     return total_cost    
 
@@ -142,7 +174,7 @@ def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, 
     for i in range(num_iters):
 
         # Calculate the gradient and update the parameters
-        dj_db,dj_dw = gradient_function(X, y, w, b)   ##None
+        dj_db,dj_dw = gradient_function(X, y, w, b, lambda_)   ##None
 
         # Update Parameters using w, b, alpha and gradient
         w = w - alpha * dj_dw               ##None

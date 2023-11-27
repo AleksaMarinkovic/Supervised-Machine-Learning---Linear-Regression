@@ -9,6 +9,9 @@ import plotly.graph_objects as go
 import plotly.figure_factory as ff
 from plotly.subplots import make_subplots
 from normalization import zscore_normalize_features
+import seaborn as sns
+
+mileage_filter = 1500000
 
 def get_train_and_test_data():
     # Data path
@@ -30,9 +33,6 @@ def get_train_and_test_data():
 
     df['Price'] = df['Price'].str.replace('€', '').str.replace('.', '').astype(int)
 
-    y = df['Price']  # Target variable
-    df = df.drop('Price', axis=1) 
-
     # Convert strings with characters and numbers to just numbers and cast as int
     def convert_string_to_int(distance_str):
         return int(''.join(filter(str.isdigit, str(distance_str))))
@@ -45,17 +45,9 @@ def get_train_and_test_data():
     df['Year'] = df['Year'].apply(convert_to_age)
     # Remove the kilometer part from for example '322.213 km' -> 322213 and convert to int
     df['Mileage'] = df['Mileage'].apply(convert_string_to_int)
+    df = df[df['Mileage'] <= mileage_filter]
     # Take only the kW value from for example '111/151 (kW/KS)' -> 111 and convert to int
     df['Power'] = df['Power'].str.split('/').str[0].str.extract('(\d+)').astype(float).astype(int)
-
-     # Transform left wheel to 2 and right wheel to 1 (not 1 0 so the weight can punish if right wheel)
-    def transform_leftwheel_to_bool(value):
-        if pd.isna(value) or value == 'Levi volan':
-            return 2
-        else:
-            return 1
-
-    df['Wheel side'] = df['Wheel side'].apply(transform_leftwheel_to_bool)
 
     # Converts date values to 1 and when 'Nije registrovan' is the value convert it to 0 
     def transform_registration_to_bool(value):
@@ -67,6 +59,12 @@ def get_train_and_test_data():
     df['Registration'] = df['Registration'].apply(transform_registration_to_bool)
 
     X_original = df
+
+
+    y = df['Price']  # Target variable
+    df = df.drop('Price', axis=1) 
+    # Onehot encode Wheel side
+    df = pd.get_dummies(df, columns=['Wheel side'], prefix='Wheel side')
 
     # Onehot encode Manufacturer
     df = pd.get_dummies(df, columns=['Manufacturer'], prefix='Manufacturer')
@@ -111,6 +109,10 @@ def get_train_and_test_data():
     original_column_names = cols_to_read
     preprocessed_column_names = df.columns[:].tolist()
 
+    column_names_for_heatmap = ['Year','Mileage','Power']
+    df_for_heatmap = df.filter(regex='^Transmission', axis = 1)
+    df_for_heatmap = pd.concat([df_for_heatmap, df[column_names_for_heatmap]],axis=1)
+    #showHeatMap(df_for_heatmap)
     X = X.to_numpy()
     y_original = pd.DataFrame(y, columns=['Price'])
     y = y.to_numpy()
@@ -181,3 +183,7 @@ def plotBarGraphs(dataframe, rows, cols, column_names, title="Distribution of ca
 
     fig.update_layout(height=height, width=width, title_text=title)
     fig.show()
+
+def showHeatMap(dataframe):
+    sns.heatmap(dataframe.corr(), annot=True, cmap='coolwarm')
+    plt.show()
