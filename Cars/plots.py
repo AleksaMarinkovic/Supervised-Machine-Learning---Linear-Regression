@@ -13,7 +13,7 @@ relative_path_plot_style = 'deeplearning.mplstyle'
 file_path_plot_style = os.path.join(current_directory, relative_path_plot_style)
 plt.style.use(file_path_plot_style)
 
-def plot_with_column(df, column, title='Line plot'):
+def plot_with_column(df, column):
     """
     Plots x against y 
     
@@ -26,7 +26,7 @@ def plot_with_column(df, column, title='Line plot'):
     """
 
     plt.scatter(df[column].to_numpy(), df["Price"], marker='o', c='b')
-    plt.title(title)
+    plt.title(f"{column}/Price")
     plt.ylabel("Price")
     plt.xlabel(column)
     plt.show()
@@ -51,6 +51,6 @@ def plotBarGraphs(dataframe, rows, cols, column_names, title="Distribution of ca
     fig.update_layout(height=height, width=width, title_text=title)
     fig.show()
 
-def showHeatMap(dataframe):
-    sns.heatmap(dataframe.corr(), annot=True, cmap='coolwarm')
+def showHeatMap(dataframe, columns):
+    sns.heatmap(dataframe[columns].corr(), annot=True, cmap='coolwarm')
     plt.show()

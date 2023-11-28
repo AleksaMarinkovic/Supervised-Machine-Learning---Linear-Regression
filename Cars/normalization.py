@@ -42,6 +42,25 @@ def reverse_zscore_normalize_features(X_norm, mu, sigma, num_cols=5):
 
     return X_original
 
+def normalize_new_data_point(new_data_point, mu, sigma, num_cols=10):
+    """
+    Normalize the first 'num_cols' elements of a 1D array using the provided mean and standard deviation.
+
+    Args:
+      new_data_point (ndarray (n,)): input data point with n features
+      mu (ndarray (n,)): mean of each feature
+      sigma (ndarray (n,)): standard deviation of each feature
+      num_cols (int): number of elements to normalize
+
+    Returns:
+      normalized_data_point (ndarray (n,)): normalized input data point
+    """
+    normalized_data_point = np.copy(new_data_point)
+    normalized_data_point[:num_cols] = (new_data_point[:num_cols] - mu[:num_cols]) / sigma[:num_cols]
+    return normalized_data_point
+
+
+
 
 def zscore_normalize_target(y):
     """

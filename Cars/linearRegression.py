@@ -186,6 +186,6 @@ def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, 
 
         # Print cost every at intervals 10 times or as many iterations if < 10
         if i% math.ceil(num_iters / 10) == 0:
-            print(f"Iteration {i:4d}: Cost {J_history[-1]:8.2f}   ")
+            print(f"Iteration {i:4d}: Cost {J_history[-1]:8.6f}   ")
         
     return w, b, J_history #return final w,b and J history for graphing
