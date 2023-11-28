@@ -29,7 +29,7 @@ df_for_predictions = pd.concat([df_for_predictions, row_with_zeros], ignore_inde
 columns_for_new_predictions = ['Manufacturer', 'Year', 'Mileage', 'Chasis' ,'Fuel', 'Power', 'Emissions', 'Displacement', 'Drivetrain', 'Transmission', 'Wheel side', 'Color', 'Registration', 'Damage']
 X_new_for_prediction = pd.DataFrame(columns=columns_for_new_predictions)
 
-new_row = {'Manufacturer': 'Citroen', 'Year': 13, 'Mileage': 300000, 'Chasis': 'Limuzina', 'Fuel': 'Dizel', 'Power': 103, 'Emissions': 'Euro 5', 'Displacement': 1997, 'Drivetrain': 'Prednji', 'Transmission': 'Manuelni 6 brzina', 'Wheel side': 'Levi volan','Color': 'Siva', 'Registration': 'Registrovan', 'Damage': 'Nije oštećen'}
+new_row = {'Manufacturer': 'BMW', 'Year': 10, 'Mileage': 230000, 'Chasis': 'Hečbek', 'Fuel': 'Dizel', 'Power': 85, 'Emissions': 'Euro 5', 'Displacement': 1995, 'Drivetrain': 'Zadnji', 'Transmission': 'Manuelni 6 brzina', 'Wheel side': 'Levi volan','Color': 'Crna', 'Registration': 'Nije registrovan', 'Damage': 'Nije oštećen'}
 df_new_row = pd.DataFrame([new_row])
 
 X_new_for_prediction = pd.concat([X_new_for_prediction, df_new_row], ignore_index=True)
@@ -49,7 +49,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 
 initial_w = np.zeros(X_train.shape[1])
 initial_b = 0
-iterations = 10
+iterations = 1000
 alpha = 5.0e-2
 lambda_ = 1e0
 w_final, b_final, J_hist = gradient_descent(X_train, y_train, initial_w, initial_b, compute_cost_linear_reg, compute_gradient_reg, alpha, iterations, lambda_)
