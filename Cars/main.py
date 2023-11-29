@@ -31,9 +31,9 @@ columns_for_new_predictions = ['Manufacturer', 'Year', 'Mileage', 'Chasis', 'Fue
                                'Damage']
 X_new_for_prediction = pd.DataFrame(columns=columns_for_new_predictions)
 
-new_row = {'Manufacturer': 'BMW', 'Year': 10, 'Mileage': 230000, 'Chasis': 'Hečbek', 'Fuel': 'Dizel', 'Power': 85,
-           'Emissions': 'Euro 5', 'Displacement': 1995, 'Drivetrain': 'Zadnji', 'Transmission': 'Manuelni 6 brzina',
-           'Wheel side': 'Levi volan', 'Color': 'Crna', 'Registration': 'Nije registrovan', 'Damage': 'Nije oštećen'}
+new_row = {'Manufacturer': 'Citroen', 'Year': 12, 'Mileage': 169000, 'Chasis': 'Hečbek', 'Fuel': 'Benzin', 'Power': 88,
+           'Emissions': 'Euro 5', 'Displacement': 1598, 'Drivetrain': 'Prednji', 'Transmission': 'Manuelni 5 brzina',
+           'Wheel side': 'Levi volan', 'Color': 'Zlatna', 'Registration': 'Nije registrovan', 'Damage': 'Nije oštećen'}
 df_new_row = pd.DataFrame([new_row])
 
 X_new_for_prediction = pd.concat([X_new_for_prediction, df_new_row], ignore_index=True)
@@ -50,9 +50,36 @@ X, mu, sigma = zscore_normalize_features(X, 10)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-initial_w = np.zeros(X_train.shape[1])
-initial_b = 0
-iterations = 1000
+initial_w = np.array([-5.63599059e-01, -5.49095727e-02,  8.89127968e-02,  1.73985621e-01,
+ -8.87239706e-02,  6.01010586e-02,  9.17692060e-02, -1.40894184e-01,
+ -3.38518557e-03, -6.08581577e-02,  9.29955244e-01,  1.08176493e+00,
+  6.92111480e-01,  1.31960869e+00, -1.09452981e-01,  3.74406214e-01,
+  2.34714941e-01, -3.63052549e-02, -1.45181976e-02,  2.13337207e-02,
+ -3.84132196e-02,  7.16080645e-03,  3.12484767e-03, -1.49393844e-02,
+ -9.55248538e-02, -4.57732084e-02,  2.28397436e-02,  5.50949257e-02,
+ -8.49562984e-04,  2.42804165e-01, -1.53639256e-02,  4.29302726e-02,
+  3.69111547e-03,  1.17106519e-01,  8.96156294e-02, -5.11512708e-02,
+  1.99311167e-01,  3.35245775e-02,  4.32742763e-02,  9.56216720e-02,
+ -5.90850225e-03,  6.46354856e-02, -3.13294695e-02,  1.71779689e-03,
+  0.00000000e+00,  8.15455766e-02,  8.08050897e-02,  6.52498317e-03,
+  1.01530780e-02,  1.19334878e-01,  2.19187622e-01,  3.54068246e-01,
+  2.57850569e-02, -2.23041890e-01,  1.43979484e-01,  5.45978982e-01,
+  2.33334161e-01,  1.59288521e-01,  1.07320982e-01,  2.65532788e-01,
+  2.61250763e-01,  2.81298892e-01,  1.57715081e-01,  5.51576306e-02,
+  5.19201145e-02,  2.59914314e-01,  4.36984160e-01,  5.83442497e-01,
+  6.24301453e-01,  5.19034856e-01,  5.08363180e-01,  4.08950413e-01,
+  5.75371721e-01,  7.29160237e-01,  1.30570627e-01,  5.81371590e-01,
+  5.70617715e-01,  1.13186212e-01,  8.02133405e-02,  1.17781344e-01,
+  1.63412029e-01,  2.02682101e-01,  8.19293683e-02,  9.30875751e-02,
+  3.55912609e-02, -1.30890602e-02,  2.55110307e-02,  1.69929583e-01,
+  1.62381365e-01,  4.34137201e-02,  1.56001699e-01,  1.60002763e-01,
+  7.51815327e-02,  9.42679618e-02,  1.51670869e-01,  9.85654753e-02,
+  5.82372775e-01,  4.99650471e-01,  3.50744478e-01,  5.78952446e-01,
+  1.13609649e+00,  2.48524892e-01,  6.27098790e-01])
+initial_b = 2.07
+# initial_w = np.zeros(X_train.shape[1])
+# initial_b = 0
+iterations = 10000
 alpha = 5.0e-2
 lambda_ = 1e0
 w_final, b_final, J_hist = gradient_descent(X_train, y_train, initial_w, initial_b, compute_cost_linear_reg,
