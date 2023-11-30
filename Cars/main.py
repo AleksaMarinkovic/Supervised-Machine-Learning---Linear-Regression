@@ -30,9 +30,9 @@ df_for_predictions = pd.concat([df_for_predictions, row_with_zeros], ignore_inde
 columns_for_new_predictions = ['Manufacturer', 'Year', 'Mileage', 'Chasis', 'Fuel', 'Power', 'Emissions', 'Drivetrain', 'Transmission', 'Wheel side', 'Color', 'Registration',
                                'Damage']
 
-new_row = {'Manufacturer': 'Audi', 'Year': 6, 'Mileage': 196707, 'Chasis': 'Džip/SUV', 'Fuel': 'Benzin', 'Power': 185,
+new_row = {'Manufacturer': 'Honda', 'Year': 7, 'Mileage': 50000, 'Chasis': 'Džip/SUV', 'Fuel': 'Dizel', 'Power': 118,
            'Emissions': 'Euro 6', 'Drivetrain': '4x4', 'Transmission': 'Automatski / poluautomatski',
-           'Wheel side': 'Levi volan', 'Color': 'Crna', 'Registration': 'Nije registrovan', 'Damage': 'Nije oštećen'}
+           'Wheel side': 'Levi volan', 'Color': 'Bela', 'Registration': 'Registrovan', 'Damage': 'Nije oštećen'}
 
 X_new_for_prediction = pd.DataFrame([new_row], columns=columns_for_new_predictions)
 
