@@ -9,7 +9,8 @@ from normalization import zscore_normalize_features
 mileage_filter = 600000
 power_filter = 300
 year_filter = 30
-price_filter = 40000
+price_filter = 100000
+displacement_filter = 8000
 def get_data():
     # Data path
     current_directory = os.getcwd()
@@ -17,7 +18,7 @@ def get_data():
     file_path = os.path.join(current_directory, relative_path)
 
     # Columns to read from xlsx
-    cols_to_read = ['Manufacturer', 'Year', 'Mileage', 'Chasis' ,'Fuel type', 'Power', 'Emissions', 'Displacement', 'Drivetrain', 'Transmission', 'Wheel side', 'Color', 'Registration', 'Damage', 'Price']
+    cols_to_read = ['Manufacturer', 'Year', 'Mileage', 'Chasis','Fuel type', 'Power', 'Emissions', 'Drivetrain', 'Transmission', 'Wheel side', 'Color', 'Registration', 'Damage', 'Price']
 
     df = pd.read_excel(file_path, engine='openpyxl',usecols=cols_to_read)
 
@@ -26,6 +27,8 @@ def get_data():
     # Drop rows which don't contain price
     df = df[df.iloc[:, -1] != 'Po dogovoru']
     df = df[df.iloc[:, -1] != 'Na upit']
+    # Drop rows containing electric cars
+    df = df[df['Fuel type'] != 'Električni pogon']
 
     df['Price'] = df['Price'].str.replace('€', '').str.replace('.', '').astype(float)
     df = df[df['Price'] <= price_filter]
@@ -60,9 +63,13 @@ def get_data():
     df['Power_Cubed'] = df['Power']**3
     
 
-    df['Displacement'] = df['Displacement'].str.replace(' cm3', '').astype(float)
-    df['Displacement_Squared'] = df['Displacement']**2
-    df['Displacement_Cubed'] = df['Displacement']**3
+    # df['Displacement'] = df['Displacement'].str.replace(' cm3', '').astype(float)
+    # 
+    # # Drop rows whose displacement is unreal
+    # df = df[df['Displacement'] < displacement_filter]
+    # 
+    # df['Displacement_Squared'] = df['Displacement']**2
+    # df['Displacement_Cubed'] = df['Displacement']**3
     
     # Convert to 'Nije registrovan' if null or 'Nije registrovan', otherwise set to 'Registrovan'
     def transform_registration_to_bool(value):
@@ -72,8 +79,8 @@ def get_data():
             return 'Registrovan'
 
     df['Registration'] = df['Registration'].apply(transform_registration_to_bool)
-    #plotBarGraphs(df,5,3, ['Manufacturer', 'Chasis' ,'Fuel type', 'Drivetrain', 'Transmission', 'Emissions','Wheel side', 'Color', 'Registration', 'Damage'])
-    #plotHistograms(df, 1,5,["Year","Mileage","Power","Price","Displacement"],["Year","KM","KW","Euros","cm3"],height=800, width=1400)
+    # plotBarGraphs(df,5,3, ['Manufacturer', 'Chasis' ,'Fuel type', 'Drivetrain', 'Transmission', 'Emissions','Wheel side', 'Color', 'Registration', 'Damage'])
+    # plotHistograms(df, 1,4,["Year","Mileage","Power","Price"],["Year","KM","KW","Euros"],height=800, width=1400)
     # Onehot encode Registration
     df = pd.get_dummies(df, columns=['Registration'], prefix='Registration')
 
@@ -83,8 +90,8 @@ def get_data():
     # Onehot encode Manufacturer
     df = pd.get_dummies(df, columns=['Manufacturer'], prefix='Manufacturer')
 
-    # Onehot encode Model
-    #df = pd.get_dummies(df, columns=['Model'], prefix='Model')
+    #Onehot encode Model
+    # df = pd.get_dummies(df, columns=['Model'], prefix='Model')
 
     # Onehot encode Chasis
     df = pd.get_dummies(df, columns=['Chasis'], prefix='Chasis')
@@ -133,9 +140,6 @@ def fit_data_to_dataset(emtpy_dataframe, X):
     emtpy_dataframe['Power'] = X['Power']
     emtpy_dataframe['Power_Squared'] = emtpy_dataframe['Power']**2
     emtpy_dataframe['Power_Cubed'] = emtpy_dataframe['Power']**3
-    emtpy_dataframe['Displacement'] = X['Displacement']
-    emtpy_dataframe['Displacement_Squared'] = emtpy_dataframe['Displacement']**2
-    emtpy_dataframe['Displacement_Cubed'] = emtpy_dataframe['Displacement']**3
     for i in range(X.shape[0]):
         emtpy_dataframe.loc[i,[f'Registration_{X.loc[i, "Registration"]}']] = 1
         emtpy_dataframe.loc[i,[f'Wheel side_{X.loc[i, "Wheel side"]}']] = 1
@@ -150,6 +154,3 @@ def fit_data_to_dataset(emtpy_dataframe, X):
     print(emtpy_dataframe.head())
     X = emtpy_dataframe.to_numpy()
     return X
-            
-
-

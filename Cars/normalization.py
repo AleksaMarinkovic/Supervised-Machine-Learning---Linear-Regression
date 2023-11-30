@@ -1,6 +1,6 @@
 import numpy as np
 
-def zscore_normalize_features(X, num_cols=5):
+def zscore_normalize_features(X, num_cols=10):
     """
     Computes X, z-score normalized by column for the first 'num_cols' columns.
     
@@ -23,7 +23,7 @@ def zscore_normalize_features(X, num_cols=5):
     return X_norm, mu, sigma
 
 
-def reverse_zscore_normalize_features(X_norm, mu, sigma, num_cols=5):
+def reverse_zscore_normalize_features(X_norm, mu, sigma, num_cols=10):
     """
     Reverts z-score normalization for the first 'num_cols' columns using mean and standard deviation.
 

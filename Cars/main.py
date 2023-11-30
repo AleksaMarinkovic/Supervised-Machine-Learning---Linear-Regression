@@ -5,8 +5,9 @@ from preprocessing import get_data, fit_data_to_dataset
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from normalization import zscore_normalize_features, normalize_new_data_point
-from plots import plot_with_column, showHeatMap
+from plots import plot_with_column, showHeatMap, showResult
 import pandas as pd
+import random
 
 np.set_printoptions(threshold=np.inf)
 
@@ -14,10 +15,10 @@ df = get_data()
 
 cols_to_plot_with_column = ["Mileage", "Power", "Year"]
 cols_to_plot_heatmap = ["Price", "Mileage", "Power", "Year"]
-# showHeatMap(df, cols_to_plot_heatmap)
+#showHeatMap(df, cols_to_plot_heatmap)
 
 # for i in range(len(cols_to_plot_with_column)):
-#    plot_with_column(df,cols_to_plot_with_column[i],)
+#     plot_with_column(df, cols_to_plot_with_column[i])
 
 y = df['Price']  # Target variable
 df = df.drop('Price', axis=1)
@@ -26,17 +27,15 @@ df_for_predictions = pd.DataFrame(columns=df.columns)
 row_with_zeros = pd.DataFrame([[0] * len(df.columns)], columns=df.columns)
 df_for_predictions = pd.concat([df_for_predictions, row_with_zeros], ignore_index=True)
 
-columns_for_new_predictions = ['Manufacturer', 'Year', 'Mileage', 'Chasis', 'Fuel', 'Power', 'Emissions',
-                               'Displacement', 'Drivetrain', 'Transmission', 'Wheel side', 'Color', 'Registration',
+columns_for_new_predictions = ['Manufacturer', 'Year', 'Mileage', 'Chasis', 'Fuel', 'Power', 'Emissions', 'Drivetrain', 'Transmission', 'Wheel side', 'Color', 'Registration',
                                'Damage']
-X_new_for_prediction = pd.DataFrame(columns=columns_for_new_predictions)
 
-new_row = {'Manufacturer': 'Citroen', 'Year': 12, 'Mileage': 169000, 'Chasis': 'Hečbek', 'Fuel': 'Benzin', 'Power': 88,
-           'Emissions': 'Euro 5', 'Displacement': 1598, 'Drivetrain': 'Prednji', 'Transmission': 'Manuelni 5 brzina',
-           'Wheel side': 'Levi volan', 'Color': 'Zlatna', 'Registration': 'Nije registrovan', 'Damage': 'Nije oštećen'}
-df_new_row = pd.DataFrame([new_row])
+new_row = {'Manufacturer': 'Audi', 'Year': 6, 'Mileage': 196707, 'Chasis': 'Džip/SUV', 'Fuel': 'Benzin', 'Power': 185,
+           'Emissions': 'Euro 6', 'Drivetrain': '4x4', 'Transmission': 'Automatski / poluautomatski',
+           'Wheel side': 'Levi volan', 'Color': 'Crna', 'Registration': 'Nije registrovan', 'Damage': 'Nije oštećen'}
 
-X_new_for_prediction = pd.concat([X_new_for_prediction, df_new_row], ignore_index=True)
+X_new_for_prediction = pd.DataFrame([new_row], columns=columns_for_new_predictions)
+
 
 X_processed_new_for_prediction = fit_data_to_dataset(df_for_predictions, X_new_for_prediction)
 X_processed_new_for_prediction = X_processed_new_for_prediction.squeeze()
@@ -46,48 +45,43 @@ X = X.to_numpy()
 y = y.to_numpy()
 
 preprocessed_column_names = df.columns[:].tolist()
-X, mu, sigma = zscore_normalize_features(X, 10)
+X, mu, sigma = zscore_normalize_features(X, 7)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random.randint(1, 1000))
 
-initial_w = np.array([-5.63599059e-01, -5.49095727e-02,  8.89127968e-02,  1.73985621e-01,
- -8.87239706e-02,  6.01010586e-02,  9.17692060e-02, -1.40894184e-01,
- -3.38518557e-03, -6.08581577e-02,  9.29955244e-01,  1.08176493e+00,
-  6.92111480e-01,  1.31960869e+00, -1.09452981e-01,  3.74406214e-01,
-  2.34714941e-01, -3.63052549e-02, -1.45181976e-02,  2.13337207e-02,
- -3.84132196e-02,  7.16080645e-03,  3.12484767e-03, -1.49393844e-02,
- -9.55248538e-02, -4.57732084e-02,  2.28397436e-02,  5.50949257e-02,
- -8.49562984e-04,  2.42804165e-01, -1.53639256e-02,  4.29302726e-02,
-  3.69111547e-03,  1.17106519e-01,  8.96156294e-02, -5.11512708e-02,
-  1.99311167e-01,  3.35245775e-02,  4.32742763e-02,  9.56216720e-02,
- -5.90850225e-03,  6.46354856e-02, -3.13294695e-02,  1.71779689e-03,
-  0.00000000e+00,  8.15455766e-02,  8.08050897e-02,  6.52498317e-03,
-  1.01530780e-02,  1.19334878e-01,  2.19187622e-01,  3.54068246e-01,
-  2.57850569e-02, -2.23041890e-01,  1.43979484e-01,  5.45978982e-01,
-  2.33334161e-01,  1.59288521e-01,  1.07320982e-01,  2.65532788e-01,
-  2.61250763e-01,  2.81298892e-01,  1.57715081e-01,  5.51576306e-02,
-  5.19201145e-02,  2.59914314e-01,  4.36984160e-01,  5.83442497e-01,
-  6.24301453e-01,  5.19034856e-01,  5.08363180e-01,  4.08950413e-01,
-  5.75371721e-01,  7.29160237e-01,  1.30570627e-01,  5.81371590e-01,
-  5.70617715e-01,  1.13186212e-01,  8.02133405e-02,  1.17781344e-01,
-  1.63412029e-01,  2.02682101e-01,  8.19293683e-02,  9.30875751e-02,
-  3.55912609e-02, -1.30890602e-02,  2.55110307e-02,  1.69929583e-01,
-  1.62381365e-01,  4.34137201e-02,  1.56001699e-01,  1.60002763e-01,
-  7.51815327e-02,  9.42679618e-02,  1.51670869e-01,  9.85654753e-02,
-  5.82372775e-01,  4.99650471e-01,  3.50744478e-01,  5.78952446e-01,
-  1.13609649e+00,  2.48524892e-01,  6.27098790e-01])
-initial_b = 2.07
+initial_w = np.array([-0.58687676,  0.03114216,  0.18585598, -0.19136025,  0.10205868,
+  0.03742326, -0.05354726,  0.9188081 ,  1.05879028,  0.81747399,
+  1.16012439, -0.13457126,  0.36669447,  0.16767429, -0.27845021,
+ -0.10443184, -0.03635485, -0.19389015,  0.        , -0.00614297,
+ -0.05683526, -0.12723187, -0.06376793,  0.27660243,  0.08883893,
+  0.03039519,  0.44442957,  0.04544245, -0.15791805, -0.03156099,
+  0.26330418,  0.31815749, -0.05601416,  0.20161527,  0.15846123,
+  0.19756705,  0.05539662, -0.01321008,  0.28097395, -0.0822528 ,
+ -0.04857932, -0.06245658,  0.08669825,  0.02421134,  0.        ,
+  0.03269526,  0.0990155 ,  0.34261293,  0.34737129,  0.12849959,
+ -0.64782839,  0.12243781,  0.44872831,  0.16006185,  0.39115873,
+  0.03940494,  0.26033976,  0.21879092,  0.20268264,  0.25643123,
+  0.14620314,  0.10896402,  0.23370977,  0.39829101,  0.51896081,
+  0.57146962,  0.48070126,  0.6499189 ,  0.33813263,  0.50884558,
+  0.61515374,  0.37464745,  0.50129788,  0.48649931,  0.07476414,
+  0.12878859,  0.1069401 ,  0.14705804,  0.16562645,  0.09040789,
+  0.18664245,  0.15757057, -0.06996381,  0.09084153,  0.09236039,
+  0.15094353,  0.31633494,  0.11153195,  0.09306791,  0.02887327,
+  0.09661509, -0.09504461,  0.10423996,  0.40937008,  0.41022282,
+  0.50203258,  0.46048909,  0.19548381,  1.08432427,  0.22631121,
+  0.6669629 ])
+initial_b = 2.75
 # initial_w = np.zeros(X_train.shape[1])
 # initial_b = 0
-iterations = 10000
+iterations = 10
 alpha = 5.0e-2
 lambda_ = 1e0
 w_final, b_final, J_hist = gradient_descent(X_train, y_train, initial_w, initial_b, compute_cost_linear_reg,
                                             compute_gradient_reg, alpha, iterations, lambda_)
 
 # For displaying purposes
-X_train_reversed = reverse_zscore_normalize_features(X_train, mu, sigma, 10)
-X_test_reversed = reverse_zscore_normalize_features(X_test, mu, sigma, 10)
+X_train_reversed = reverse_zscore_normalize_features(X_train, mu, sigma, 7)
+X_test_reversed = reverse_zscore_normalize_features(X_test, mu, sigma, 7)
 
 train_percentage = []
 y_predicted_train = np.array([])
@@ -119,14 +113,16 @@ for i in range(X_test_reversed.shape[0]):
     print(
         f"\033[94mtest {i} prediction: {row:0.2f}, target value: {y_test_reversed:0.2f}, year: {X_test_reversed[i, 0]}, mileage: {X_test_reversed[i, 1]}, power: {X_test_reversed[i, 3]}\033[94m, prediction percentage: {prediction_string}")
 
+
 # for i in range(0, x_train_normalized.shape[1]):
 #    plt.scatter(x_train_normalized[:,i], y_train, marker='x', c='r', label="Actual Value"); plt.title(f"Price/{cols_[i]}")
 #    plt.scatter(x_train_normalized[:,i], np.dot(x_train_eg_normalized[:,i], w_final[i]) + b_final, label="Predicted Value", marker='o',c='b'); plt.xlabel("x"); plt.ylabel("y"); plt.legend(); plt.show()
 
 print(f"\033[97mb,w found by gradient descent: {b_final:0.2f},{np.array2string(w_final, separator=', ')}\033[97m")
+#showResult(X_test_reversed, np.exp(y_test), y_predicted_test)
 
 for i in range(len(preprocessed_column_names)):
-    print(f"Weight for '{preprocessed_column_names[i]}': {w_final[i]:0.2f}")
+   print(f"Weight for '{preprocessed_column_names[i]}': {w_final[i]:0.2f}")
 
 # Plot the correlation
 # for i in range(0,x_train_normalized.shape[1]):
@@ -147,4 +143,4 @@ print("\033[97m")
 
 print(f"dimenzije X {X_processed_new_for_prediction.shape} , dimenzije W {w_final.shape}")
 print(
-    f"PREDICTION FOR NEW VALUE: {np.exp(predict(normalize_new_data_point(X_processed_new_for_prediction, mu, sigma), w_final, b_final))}")
+    f"PREDICTION FOR NEW VALUE: {np.exp(predict(normalize_new_data_point(X_processed_new_for_prediction, mu, sigma, 7), w_final, b_final))}")
