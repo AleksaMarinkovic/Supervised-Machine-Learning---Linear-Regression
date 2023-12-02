@@ -1,6 +1,6 @@
 import numpy as np
 from normalization import reverse_zscore_normalize_features
-from linearRegression import gradient_descent, compute_cost_linear_reg, compute_gradient_reg, predict
+from linear_regression import gradient_descent, compute_cost_linear_reg, compute_gradient_reg, predict
 from preprocessing import get_data, fit_data_to_dataset
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
@@ -8,7 +8,7 @@ from normalization import zscore_normalize_features, normalize_new_data_point
 from plots import plot_with_column, showHeatMap, showResult
 import pandas as pd
 import random
-
+import time
 np.set_printoptions(threshold=np.inf)
 
 df = get_data()
@@ -49,36 +49,44 @@ X, mu, sigma = zscore_normalize_features(X, 7)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random.randint(1, 1000))
 
-initial_w = np.array([-0.58687676,  0.03114216,  0.18585598, -0.19136025,  0.10205868,
-  0.03742326, -0.05354726,  0.9188081 ,  1.05879028,  0.81747399,
-  1.16012439, -0.13457126,  0.36669447,  0.16767429, -0.27845021,
- -0.10443184, -0.03635485, -0.19389015,  0.        , -0.00614297,
- -0.05683526, -0.12723187, -0.06376793,  0.27660243,  0.08883893,
-  0.03039519,  0.44442957,  0.04544245, -0.15791805, -0.03156099,
-  0.26330418,  0.31815749, -0.05601416,  0.20161527,  0.15846123,
-  0.19756705,  0.05539662, -0.01321008,  0.28097395, -0.0822528 ,
- -0.04857932, -0.06245658,  0.08669825,  0.02421134,  0.        ,
-  0.03269526,  0.0990155 ,  0.34261293,  0.34737129,  0.12849959,
- -0.64782839,  0.12243781,  0.44872831,  0.16006185,  0.39115873,
-  0.03940494,  0.26033976,  0.21879092,  0.20268264,  0.25643123,
-  0.14620314,  0.10896402,  0.23370977,  0.39829101,  0.51896081,
-  0.57146962,  0.48070126,  0.6499189 ,  0.33813263,  0.50884558,
-  0.61515374,  0.37464745,  0.50129788,  0.48649931,  0.07476414,
-  0.12878859,  0.1069401 ,  0.14705804,  0.16562645,  0.09040789,
-  0.18664245,  0.15757057, -0.06996381,  0.09084153,  0.09236039,
-  0.15094353,  0.31633494,  0.11153195,  0.09306791,  0.02887327,
-  0.09661509, -0.09504461,  0.10423996,  0.40937008,  0.41022282,
-  0.50203258,  0.46048909,  0.19548381,  1.08432427,  0.22631121,
-  0.6669629 ])
-initial_b = 2.75
-# initial_w = np.zeros(X_train.shape[1])
-# initial_b = 0
-iterations = 10
+# initial_w = np.array([-6.10380237e-01,  7.64766537e-02,  2.23190178e-01, -2.89012067e-01,
+#                       1.58842058e-01, -7.31995823e-02,  6.31418691e-03,  2.91957136e-01,
+#                       4.60018390e-01,  2.33922439e-01,  5.18053088e-01, -1.47266830e-01,
+#                       3.87361675e-01,  1.85098347e-01, -5.65151818e-01, -1.90625453e-01,
+#                       -2.10586730e-02, -3.23192186e-01, -6.56614059e-02, -8.92549276e-03,
+#                       -9.40414706e-02, -1.50215534e-01, -7.80138585e-02,  2.19189655e-01,
+#                       -2.94748606e-02,  3.92098189e-02,  4.58295969e-01,  4.03193613e-02,
+#                       -3.16905815e-01, -3.42975596e-02,  3.11080620e-01,  2.89933728e-01,
+#                       -8.34130685e-02,  2.08003692e-01,  1.19246141e-01,  1.58387992e-01,
+#                       5.82624629e-02, -2.84480710e-02,  5.28815729e-01, -1.16245774e-01,
+#                       -4.23003632e-02, -1.99548301e-03,  3.44030562e-02, -1.59466115e-01,
+#                       -8.53635501e-02,  1.18979408e-01,  1.10631506e-02,  2.50907279e-01,
+#                       3.25494277e-01,  1.26202254e-01, -6.90304062e-01,  1.14088356e-01,
+#                       2.83701473e-01, -3.40752334e-03,  2.35056214e-01, -9.62923434e-02,
+#                       7.41562016e-02,  6.41155091e-02,  2.22830550e-02,  1.72362941e-01,
+#                       -1.04712095e-01, -1.50137133e-02,  3.71703197e-02,  1.86429887e-01,
+#                       3.09285602e-01,  3.38815525e-01,  1.62334097e-01,  3.76586683e-01,
+#                       -4.93406679e-04,  2.13548152e-01,  2.33618581e-01,  2.73864063e-01,
+#                       1.21238747e-01,  1.23254136e-01, -2.77843989e-02, -4.72284781e-02,
+#                       1.12004965e-01,  5.10769817e-02,  3.51772637e-02, -1.79853155e-02,
+#                       1.10859637e-01,  3.13348918e-01, -1.13660951e-01,  3.96000428e-02,
+#                       -2.05869505e-03,  1.13103428e-02,  2.47410969e-01,  1.56815472e-02,
+#                       -1.30689757e-02,  3.13251080e-02, -2.81239095e-02,  1.68918512e-03,
+#                       3.24012903e-02,  1.06239375e-01,  6.80926104e-02,  2.51058855e-01,
+#                       1.46631228e-01,  1.79953459e-01,  6.44882056e-01, -1.72689517e-01,
+#                       2.79782988e-01])
+# initial_b = 5.95
+initial_w = np.zeros(X_train.shape[1])
+initial_b = 0
+iterations = 100000
 alpha = 5.0e-2
 lambda_ = 1e0
+start_time = time.time()
 w_final, b_final, J_hist = gradient_descent(X_train, y_train, initial_w, initial_b, compute_cost_linear_reg,
                                             compute_gradient_reg, alpha, iterations, lambda_)
-
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"Gradient descent took: {elapsed_time} seconds")
 # For displaying purposes
 X_train_reversed = reverse_zscore_normalize_features(X_train, mu, sigma, 7)
 X_test_reversed = reverse_zscore_normalize_features(X_test, mu, sigma, 7)
