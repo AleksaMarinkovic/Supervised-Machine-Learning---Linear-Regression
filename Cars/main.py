@@ -78,7 +78,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 # initial_b = 5.95
 initial_w = np.zeros(X_train.shape[1])
 initial_b = 0
-iterations = 100000
+iterations = 10000
 alpha = 5.0e-2
 lambda_ = 1e0
 start_time = time.time()
