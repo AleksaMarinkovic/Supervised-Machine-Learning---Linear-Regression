@@ -11,9 +11,11 @@ import random
 import time
 np.set_printoptions(threshold=np.inf)
 
+columns_to_normalize = 5
+
 df = get_data()
 
-cols_to_plot_with_column = ["Mileage", "Power", "Year"]
+cols_to_plot_with_column = ["Mileage", "Power", "PowerRoot", "Year"]
 cols_to_plot_heatmap = ["Price", "Mileage", "Power", "Year"]
 #showHeatMap(df, cols_to_plot_heatmap)
 
@@ -27,10 +29,10 @@ df_for_predictions = pd.DataFrame(columns=df.columns)
 row_with_zeros = pd.DataFrame([[0] * len(df.columns)], columns=df.columns)
 df_for_predictions = pd.concat([df_for_predictions, row_with_zeros], ignore_index=True)
 
-columns_for_new_predictions = ['Manufacturer', 'Year', 'Mileage', 'Chasis', 'Fuel', 'Power', 'Emissions', 'Drivetrain', 'Transmission', 'Wheel side', 'Color', 'Registration',
+columns_for_new_predictions = ['Manufacturer', 'Model', 'PowerRoot', 'Year', 'Mileage', 'Displacement', 'Chasis', 'Fuel', 'Power', 'Emissions', 'Drivetrain', 'Transmission', 'Wheel side', 'Color', 'Registration',
                                'Damage']
 
-new_row = {'Manufacturer': 'Honda', 'Year': 7, 'Mileage': 50000, 'Chasis': 'Džip/SUV', 'Fuel': 'Dizel', 'Power': 118,
+new_row = {'Manufacturer': 'Honda', 'Year': 7, 'Model': 'CR-V','Mileage': 50000, 'Displacement': 1998,'Chasis': 'Džip/SUV', 'Fuel': 'Dizel', 'Power': 118,
            'Emissions': 'Euro 6', 'Drivetrain': '4x4', 'Transmission': 'Automatski / poluautomatski',
            'Wheel side': 'Levi volan', 'Color': 'Bela', 'Registration': 'Registrovan', 'Damage': 'Nije oštećen'}
 
@@ -45,7 +47,7 @@ X = X.to_numpy()
 y = y.to_numpy()
 
 preprocessed_column_names = df.columns[:].tolist()
-X, mu, sigma = zscore_normalize_features(X, 3)
+X, mu, sigma = zscore_normalize_features(X, columns_to_normalize)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random.randint(1, 1000))
 
@@ -53,7 +55,7 @@ initial_w = np.zeros(X_train.shape[1])
 initial_b = 0
 iterations = 10000
 alpha = 5.0e-2
-lambda_ = 1e0
+lambda_ = 0e0
 start_time = time.time()
 w_final, b_final, J_hist = gradient_descent(X_train, y_train, initial_w, initial_b, compute_cost_linear_reg,
                                             compute_gradient_reg, alpha, iterations, lambda_)
@@ -61,8 +63,8 @@ end_time = time.time()
 elapsed_time = end_time - start_time
 print(f"Gradient descent took: {elapsed_time} seconds")
 # For displaying purposes
-X_train_reversed = reverse_zscore_normalize_features(X_train, mu, sigma, 3)
-X_test_reversed = reverse_zscore_normalize_features(X_test, mu, sigma, 3)
+X_train_reversed = reverse_zscore_normalize_features(X_train, mu, sigma, columns_to_normalize)
+X_test_reversed = reverse_zscore_normalize_features(X_test, mu, sigma, columns_to_normalize)
 
 train_percentage = []
 y_predicted_train = np.array([])
@@ -131,7 +133,7 @@ print("\033[97m")
 
 # print(f"dimenzije X {X_processed_new_for_prediction.shape} , dimenzije W {w_final.shape}")
 print(
-   f"PREDICTION FOR NEW VALUE: {np.exp(predict(normalize_new_data_point(X_processed_new_for_prediction, mu, sigma, 3), w_final, b_final))}")
+   f"PREDICTION FOR NEW VALUE: {np.exp(predict(normalize_new_data_point(X_processed_new_for_prediction, mu, sigma, columns_to_normalize), w_final, b_final))}")
 
 # print(
 #    f"PREDICTION FOR NEW VALUE: {predict(normalize_new_data_point(X_processed_new_for_prediction, mu, sigma, 7), w_final, b_final)}")
