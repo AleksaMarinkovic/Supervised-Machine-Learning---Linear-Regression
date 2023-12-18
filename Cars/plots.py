@@ -3,7 +3,7 @@ from plotly.subplots import make_subplots
 import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-import numpy as np
+from scipy import stats  # Import the stats module
 
 current_directory = os.getcwd()
 relative_path_plot_style = 'deeplearning.mplstyle'
@@ -40,7 +40,7 @@ def plotHistograms(dataframe, rows, cols, column_names, numerical_data_names, ti
                     row=i + 1, col=j + 1) if j + i * cols < len(column_names) else None
             else:
                 fig.add_trace(
-                    go.Histogram(x=np.exp(dataframe[str(column_names[i * cols + j])]), name=numerical_data_names[i * cols + j]),
+                    go.Histogram(x=dataframe[str(column_names[i * cols + j])], name=numerical_data_names[i * cols + j]),
                     row=i + 1, col=j + 1) if j + i * cols < len(column_names) else None
 
     fig.update_layout(height=height, width=width, title_text=title)
@@ -103,3 +103,19 @@ def showResult(X, y_target, y_predicated, num_windows=10):
         # Adjust layout and show plot
         plt.tight_layout(rect=[0, 0, 1, 0.96])
         plt.show()
+
+
+def plotResidualQQ(residuals):
+    plt.figure(figsize=(8, 6))
+    stats.probplot(residuals.flatten(), dist="norm", plot=plt)
+    plt.title('Q-Q Plot of Residuals')
+    plt.show()
+
+
+def plotResidualHistogram(residuals):
+    plt.figure(figsize=(8, 6))
+    sns.histplot(residuals, kde=True, color='blue')
+    plt.title('Histogram of Residuals')
+    plt.xlabel('Residuals')
+    plt.ylabel('Frequency')
+    plt.show()

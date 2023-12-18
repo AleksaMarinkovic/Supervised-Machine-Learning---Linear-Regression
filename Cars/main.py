@@ -5,7 +5,7 @@ from preprocessing import get_data, fit_data_to_dataset
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from normalization import zscore_normalize_features, normalize_new_data_point
-from plots import plot_with_column, showHeatMap, showResult
+from plots import plot_with_column, showHeatMap, showResult, plotResidualQQ, plotResidualHistogram
 import pandas as pd
 import random
 import time
@@ -45,37 +45,10 @@ X = X.to_numpy()
 y = y.to_numpy()
 
 preprocessed_column_names = df.columns[:].tolist()
-X, mu, sigma = zscore_normalize_features(X, 7)
+X, mu, sigma = zscore_normalize_features(X, 3)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random.randint(1, 1000))
 
-# initial_w = np.array([-6.10380237e-01,  7.64766537e-02,  2.23190178e-01, -2.89012067e-01,
-#                       1.58842058e-01, -7.31995823e-02,  6.31418691e-03,  2.91957136e-01,
-#                       4.60018390e-01,  2.33922439e-01,  5.18053088e-01, -1.47266830e-01,
-#                       3.87361675e-01,  1.85098347e-01, -5.65151818e-01, -1.90625453e-01,
-#                       -2.10586730e-02, -3.23192186e-01, -6.56614059e-02, -8.92549276e-03,
-#                       -9.40414706e-02, -1.50215534e-01, -7.80138585e-02,  2.19189655e-01,
-#                       -2.94748606e-02,  3.92098189e-02,  4.58295969e-01,  4.03193613e-02,
-#                       -3.16905815e-01, -3.42975596e-02,  3.11080620e-01,  2.89933728e-01,
-#                       -8.34130685e-02,  2.08003692e-01,  1.19246141e-01,  1.58387992e-01,
-#                       5.82624629e-02, -2.84480710e-02,  5.28815729e-01, -1.16245774e-01,
-#                       -4.23003632e-02, -1.99548301e-03,  3.44030562e-02, -1.59466115e-01,
-#                       -8.53635501e-02,  1.18979408e-01,  1.10631506e-02,  2.50907279e-01,
-#                       3.25494277e-01,  1.26202254e-01, -6.90304062e-01,  1.14088356e-01,
-#                       2.83701473e-01, -3.40752334e-03,  2.35056214e-01, -9.62923434e-02,
-#                       7.41562016e-02,  6.41155091e-02,  2.22830550e-02,  1.72362941e-01,
-#                       -1.04712095e-01, -1.50137133e-02,  3.71703197e-02,  1.86429887e-01,
-#                       3.09285602e-01,  3.38815525e-01,  1.62334097e-01,  3.76586683e-01,
-#                       -4.93406679e-04,  2.13548152e-01,  2.33618581e-01,  2.73864063e-01,
-#                       1.21238747e-01,  1.23254136e-01, -2.77843989e-02, -4.72284781e-02,
-#                       1.12004965e-01,  5.10769817e-02,  3.51772637e-02, -1.79853155e-02,
-#                       1.10859637e-01,  3.13348918e-01, -1.13660951e-01,  3.96000428e-02,
-#                       -2.05869505e-03,  1.13103428e-02,  2.47410969e-01,  1.56815472e-02,
-#                       -1.30689757e-02,  3.13251080e-02, -2.81239095e-02,  1.68918512e-03,
-#                       3.24012903e-02,  1.06239375e-01,  6.80926104e-02,  2.51058855e-01,
-#                       1.46631228e-01,  1.79953459e-01,  6.44882056e-01, -1.72689517e-01,
-#                       2.79782988e-01])
-# initial_b = 5.95
 initial_w = np.zeros(X_train.shape[1])
 initial_b = 0
 iterations = 10000
@@ -88,14 +61,19 @@ end_time = time.time()
 elapsed_time = end_time - start_time
 print(f"Gradient descent took: {elapsed_time} seconds")
 # For displaying purposes
-X_train_reversed = reverse_zscore_normalize_features(X_train, mu, sigma, 7)
-X_test_reversed = reverse_zscore_normalize_features(X_test, mu, sigma, 7)
+X_train_reversed = reverse_zscore_normalize_features(X_train, mu, sigma, 3)
+X_test_reversed = reverse_zscore_normalize_features(X_test, mu, sigma, 3)
 
 train_percentage = []
 y_predicted_train = np.array([])
 for i in range(X_train_reversed.shape[0]):
     row = np.exp(np.dot(X_train[i], w_final) + b_final)
     y_train_reversed = np.exp(y_train[i])
+
+
+    # row = np.dot(X_train[i], w_final) + b_final
+    # y_train_reversed = y_train[i]
+
     # print(f"\033[93mtrain {i} prediction: {row:0.2f}, target value: {y_train[i]}, year: {X_train_reversed[i,0]}, mileage: {X_train_reversed[i,1]}, power: {X_train_reversed[i,2]}\033[93m")
     individual_train_percentage = (y_train_reversed * 100) / row if y_train_reversed < row else (
                                                                                                         row * 100) / y_train_reversed
@@ -107,6 +85,10 @@ y_predicted_test = np.array([])
 for i in range(X_test_reversed.shape[0]):
     row = np.exp(np.dot(X_test[i], w_final) + b_final)
     y_test_reversed = np.exp(y_test[i])
+
+    # row = np.dot(X_test[i], w_final) + b_final
+    # y_test_reversed = y_test[i]
+
     individual_test_percentage = (y_test_reversed * 100) / row if y_test_reversed < row else (
                                                                                                      row * 100) / y_test_reversed
     test_percentage.append(individual_test_percentage)
@@ -122,19 +104,15 @@ for i in range(X_test_reversed.shape[0]):
         f"\033[94mtest {i} prediction: {row:0.2f}, target value: {y_test_reversed:0.2f}, year: {X_test_reversed[i, 0]}, mileage: {X_test_reversed[i, 1]}, power: {X_test_reversed[i, 3]}\033[94m, prediction percentage: {prediction_string}")
 
 
-# for i in range(0, x_train_normalized.shape[1]):
-#    plt.scatter(x_train_normalized[:,i], y_train, marker='x', c='r', label="Actual Value"); plt.title(f"Price/{cols_[i]}")
-#    plt.scatter(x_train_normalized[:,i], np.dot(x_train_eg_normalized[:,i], w_final[i]) + b_final, label="Predicted Value", marker='o',c='b'); plt.xlabel("x"); plt.ylabel("y"); plt.legend(); plt.show()
+residuals = np.exp(y_test) - y_predicted_test
+# residuals = y_test - y_predicted_test
+plotResidualQQ(residuals)
+plotResidualHistogram(residuals)
 
 print(f"\033[97mb,w found by gradient descent: {b_final:0.2f},{np.array2string(w_final, separator=', ')}\033[97m")
-#showResult(X_test_reversed, np.exp(y_test), y_predicted_test)
 
 for i in range(len(preprocessed_column_names)):
    print(f"Weight for '{preprocessed_column_names[i]}': {w_final[i]:0.2f}")
-
-# Plot the correlation
-# for i in range(0,x_train_normalized.shape[1]):
-#    plot_with_column(x_train_normalized, y_train, i, df.columns[i], f"Price/{df.columns[i]}")
 
 y_predicted_train = y_predicted_train.reshape(-1, 1)
 y_predicted_test = y_predicted_test.reshape(-1, 1)
@@ -146,9 +124,14 @@ print(np.mean(test_percentage))
 print("\033[97m")
 
 print(f"\033[96mR2_SCORE={r2_score(np.exp(y_test), y_predicted_test)}\033[96m")
+# print(f"\033[96mR2_SCORE={r2_score(y_test, y_predicted_test)}\033[96m")
+
 print("\n")
 print("\033[97m")
 
-print(f"dimenzije X {X_processed_new_for_prediction.shape} , dimenzije W {w_final.shape}")
+# print(f"dimenzije X {X_processed_new_for_prediction.shape} , dimenzije W {w_final.shape}")
 print(
-    f"PREDICTION FOR NEW VALUE: {np.exp(predict(normalize_new_data_point(X_processed_new_for_prediction, mu, sigma, 7), w_final, b_final))}")
+   f"PREDICTION FOR NEW VALUE: {np.exp(predict(normalize_new_data_point(X_processed_new_for_prediction, mu, sigma, 3), w_final, b_final))}")
+
+# print(
+#    f"PREDICTION FOR NEW VALUE: {predict(normalize_new_data_point(X_processed_new_for_prediction, mu, sigma, 7), w_final, b_final)}")
