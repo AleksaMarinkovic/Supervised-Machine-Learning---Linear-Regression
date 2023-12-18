@@ -20,7 +20,7 @@ def get_data():
     # Columns to read from xlsx
     cols_to_read = ['Manufacturer', 'Year', 'Mileage', 'Chasis','Fuel type', 'Power', 'Emissions', 'Drivetrain', 'Transmission', 'Wheel side', 'Color', 'Registration', 'Damage', 'Price']
 
-    df = pd.read_excel(file_path, engine='openpyxl',usecols=cols_to_read)
+    df = pd.read_excel(file_path, engine='openpyxl', usecols=cols_to_read)
 
     # Drop rows with NaN values
     df.dropna(inplace=True)

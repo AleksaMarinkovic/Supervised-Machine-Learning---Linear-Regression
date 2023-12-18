@@ -17,8 +17,8 @@ cols_to_plot_with_column = ["Mileage", "Power", "Year"]
 cols_to_plot_heatmap = ["Price", "Mileage", "Power", "Year"]
 #showHeatMap(df, cols_to_plot_heatmap)
 
-# for i in range(len(cols_to_plot_with_column)):
-#     plot_with_column(df, cols_to_plot_with_column[i])
+for i in range(len(cols_to_plot_with_column)):
+    plot_with_column(df, cols_to_plot_with_column[i])
 
 y = df['Price']  # Target variable
 df = df.drop('Price', axis=1)

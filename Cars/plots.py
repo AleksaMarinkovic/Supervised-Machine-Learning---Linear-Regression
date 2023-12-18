@@ -22,7 +22,7 @@ def plot_with_column(df, column):
       
     """
     plt.figure()
-    plt.scatter(df[column].to_numpy(), df["Price"], marker='o', c='b')
+    plt.scatter(df[column].to_numpy(), df["Price"], marker='o', c='b', s=10)
     plt.title(f"{column}/Price")
     plt.ylabel("Price")
     plt.xlabel(column)
