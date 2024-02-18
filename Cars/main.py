@@ -10,15 +10,16 @@ from plots import plot_with_column, showHeatMap, showResult, plotResidualQQ, plo
 import pandas as pd
 import random
 import time
+
 np.set_printoptions(threshold=np.inf)
 
 columns_to_normalize = 9
 
-df, target_means_manufacturer,target_means_model = get_data()
+df, target_means_manufacturer, target_means_model = get_data()
 
 cols_to_plot_with_column = ["Mileage", "Power", "PowerRoot", "Year", "MileagePerYear"]
 cols_to_plot_heatmap = ["Price", "Mileage", "Power", "Year"]
-#showHeatMap(df, cols_to_plot_heatmap)
+# showHeatMap(df, cols_to_plot_heatmap)
 
 for i in range(len(cols_to_plot_with_column)):
     plot_with_column(df, cols_to_plot_with_column[i])
@@ -30,18 +31,20 @@ df_for_predictions = pd.DataFrame(columns=df.columns)
 row_with_zeros = pd.DataFrame([[0] * len(df.columns)], columns=df.columns)
 df_for_predictions = pd.concat([df_for_predictions, row_with_zeros], ignore_index=True)
 
-columns_for_new_predictions = ['Manufacturer', 'Model', 'PowerRoot', 'Year', 'Mileage', 'Displacement', 'PowerPerLitre','Chasis', 'Fuel', 'Power', 'Emissions', 'Drivetrain', 'Transmission', 'Wheel side', 'Color', 'Registration']
+columns_for_new_predictions = ['Manufacturer', 'Model', 'PowerRoot', 'Year', 'Mileage', 'Displacement', 'PowerPerLitre',
+                               'Chasis', 'Fuel', 'Power', 'Emissions', 'Drivetrain', 'Transmission', 'Wheel side',
+                               'Color', 'Registration']
 
-new_row = {'Manufacturer': 'Kia', 'Year': 11, 'Model': 'Sportage', 'Mileage': 140000, 'Displacement': 1685, 'Chasis': 'Džip/SUV', 'Fuel': 'Dizel', 'Power': 86,
+new_row = {'Manufacturer': 'Kia', 'Year': 11, 'Model': 'Sportage', 'Mileage': 140000, 'Displacement': 1685,
+           'Chasis': 'Džip/SUV', 'Fuel': 'Dizel', 'Power': 86,
            'Emissions': 'Euro 5', 'Drivetrain': 'Prednji', 'Transmission': 'Manuelni 6 brzina',
            'Wheel side': 'Levi volan', 'Color': 'Siva', 'Registration': 'Registrovan'}
 
 X_new_for_prediction = pd.DataFrame([new_row], columns=columns_for_new_predictions)
 
-
-X_processed_new_for_prediction = fit_data_to_dataset(df_for_predictions, X_new_for_prediction, target_means_manufacturer, target_means_model)
+X_processed_new_for_prediction = fit_data_to_dataset(df_for_predictions, X_new_for_prediction,
+                                                     target_means_manufacturer, target_means_model)
 X_processed_new_for_prediction = X_processed_new_for_prediction.squeeze()
-
 
 X = df
 
@@ -65,8 +68,6 @@ for i in range(10):
     row = X[i, :columns_to_normalize]
     formatted_row = [f"{val:.4f}" for val in row]
     print(" ".join(formatted_row))
-
-
 
 initial_w = np.zeros(X_train.shape[1])
 initial_b = 0
@@ -118,18 +119,16 @@ for i in range(X_test.shape[0]):
         f", mileage: {X_test_reversed[i, 1]}, power: {X_test_reversed[i, 3]}\033[94m, "
         f"prediction percentage: {prediction_string}")
 
-
 residuals = y_predicted_test - np.exp(y_test)
 plotResidualQQ(residuals)
 plotResidualHistogram(residuals)
 
 plotResidualsAgainstFitted(residuals, y_predicted_test)
 
-
 print(f"\033[97mb,w found by gradient descent: {b_final:0.2f},{np.array2string(w_final, separator=', ')}\033[97m")
 
 for i in range(len(preprocessed_column_names)):
-   print(f"Weight for '{preprocessed_column_names[i]}': {w_final[i]:0.2f}")
+    print(f"Weight for '{preprocessed_column_names[i]}': {w_final[i]:0.2f}")
 
 y_predicted_train = y_predicted_train.reshape(-1, 1)
 y_predicted_test = y_predicted_test.reshape(-1, 1)
@@ -145,4 +144,4 @@ print(f"\033[96mR2_SCORE={r2_score(np.exp(y_test), y_predicted_test)}\033[96m")
 print("\n")
 print("\033[97m")
 print(
-   f"PREDICTION FOR NEW VALUE: {np.exp(predict(normalize_new_data_point(X_processed_new_for_prediction, mu_train, sigma_train, columns_to_normalize), w_final, b_final))}")
+    f"PREDICTION FOR NEW VALUE: {np.exp(predict(normalize_new_data_point(X_processed_new_for_prediction, mu_train, sigma_train, columns_to_normalize), w_final, b_final)):0.2f}")

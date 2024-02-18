@@ -4,26 +4,6 @@ import math
 import numpy as np
 
 
-# Predict without vectors (for loop)
-def predict_single_loop(x, w, b):
-    """
-    Single predict using linear regression
-    Parameters:
-      x (ndarray): Shape (n,) example with multiple features
-      w (ndarray): Shape (n,) model parameters
-      b (scalar):  model parameter
-    Returns:
-      p (scalar):  prediction
-    """
-    n = x.shape[0]
-    p = 0
-    for i in range(n):
-        p_i = x[i] * w[i]
-        p = p + p_i
-    p = p + b
-    return p
-
-
 # Predict with vectors
 def predict(x, w, b):
     """
@@ -37,23 +17,6 @@ def predict(x, w, b):
     """
     p = np.dot(x, w) + b
     return p
-
-
-def compute_vec_cost(X, y, w, b):
-    """
-    Vectorized version of compute_cost function
-    Parameters:
-       X (ndarray (m,n)): Data, m examples with n features
-       y (ndarray (m,)) : target values
-       w (ndarray (n,)) : model parameters
-       b (scalar)       : model parameter
-    Returns:
-       cost (scalar): cost
-    """
-    m = X.shape[0]
-    f_wb = np.dot(X, w) + b
-    cost = np.sum((f_wb - y) ** 2) / (2 * m)
-    return cost
 
 
 # Compute gradient, return dj_db and dj_dw
@@ -119,7 +82,7 @@ def compute_cost_linear_reg(X, y, w, b, lambda_):
     w_b = np.r_[w, b]  # augmented parameter vector
 
     cost = np.sum((np.dot(X_b, w_b) - y) ** 2) / (2 * m)
-    reg_cost = lambda_ * np.sum(w_b[:-1]**2) / (2 * m)
+    reg_cost = lambda_ * np.sum(w_b[:-1] ** 2) / (2 * m)
 
     total_cost = cost + reg_cost
     return total_cost
