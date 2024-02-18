@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def zscore_normalize_features(X, num_cols=10):
     """
     Computes X, z-score normalized by column for the first 'num_cols' columns.
@@ -13,7 +14,7 @@ def zscore_normalize_features(X, num_cols=10):
       mu (ndarray (n,)): mean of each feature for the first 'num_cols' columns
       sigma (ndarray (n,)): standard deviation of each feature for the first 'num_cols' columns
     """
-     # find the mean of each column/feature for the first 'num_cols' columns
+    # find the mean of each column/feature for the first 'num_cols' columns
     mu = np.mean(X[:, :num_cols], axis=0)  # mu will have shape (num_cols,)
     # find the standard deviation of each column/feature for the first 'num_cols' columns
     sigma = np.std(X[:, :num_cols], axis=0)  # sigma will have shape (num_cols,)
@@ -42,6 +43,7 @@ def reverse_zscore_normalize_features(X_norm, mu, sigma, num_cols=10):
 
     return X_original
 
+
 def normalize_new_data_point(new_data_point, mu, sigma, num_cols=10):
     """
     Normalize the first 'num_cols' elements of a 1D array using the provided mean and standard deviation.
@@ -60,8 +62,6 @@ def normalize_new_data_point(new_data_point, mu, sigma, num_cols=10):
     return normalized_data_point
 
 
-
-
 def zscore_normalize_target(y):
     """
     computes  Y, zcore normalized
@@ -75,10 +75,10 @@ def zscore_normalize_target(y):
       sigma_Y (ndarray (n,))  : standard deviation of each feature
     """
     # find the mean of each column/feature
-    mu_Y     = np.mean(y)                 # mu will have shape (n,)
+    mu_Y = np.mean(y)  # mu will have shape (n,)
     # find the standard deviation of each column/feature
-    sigma_Y  = np.std(y)                  # sigma will have shape (n,)
+    sigma_Y = np.std(y)  # sigma will have shape (n,)
     # element-wise, subtract mu for that column from each example, divide by std for that column
-    y_norm = (y - mu_Y) / sigma_Y      
+    y_norm = (y - mu_Y) / sigma_Y
 
     return (y_norm, mu_Y, sigma_Y)

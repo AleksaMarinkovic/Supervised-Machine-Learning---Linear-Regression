@@ -70,11 +70,11 @@ def compute_gradient_reg(X, y, w, b, lambda_):
       dj_dw : (ndarray (n,)) The gradient of the cost w.r.t. the parameters w. 
       dj_db : (scalar) The gradient of the cost w.r.t. the parameter b.     
     """
-    m, n = X.shape  # (number of examples, number of features)
+    m = X.shape[0]  # (number of examples, number of features)
 
     err = np.dot(X, w) + b - y  # shape (m,)
     dj_dw = np.dot(err, X) / m + (lambda_ / m) * w  # shape (n,)
-    dj_db = np.sum(err) / m
+    dj_db = err.mean()
 
     return dj_db, dj_dw
 
@@ -89,15 +89,13 @@ def compute_gradient(X, y, w, b):
       w (ndarray (n,)) : model parameters
       b (scalar)       : model parameter
     Returns:
-      dj_dw (ndarray (n,)): The gradient of the cost w.r.t. the parameters w.
-      dj_db (scalar):       The gradient of the cost w.r.t. the parameter b.
+      dj_dw (ndarray (n,)): The gradient of the cost with respect to the parameters w.
+      dj_db (scalar):       The gradient of the cost with respect to the parameter b.
     """
     m = X.shape[0]  # number of examples
-    y_hat = np.dot(X, w) + b  # predicted values
 
-    err = y_hat - y
-
-    dj_dw = np.dot(X.T, err) / m
+    err = np.dot(X, w) + b - y
+    dj_dw = np.dot(err, X) / m
     dj_db = err.mean()
 
     return dj_db, dj_dw
@@ -116,13 +114,12 @@ def compute_cost_linear_reg(X, y, w, b, lambda_):
       total_cost (scalar):  cost
     """
     m = X.shape[0]
-    n = len(w)
 
     X_b = np.c_[X, np.ones(m)]  # augmented feature vectors
     w_b = np.r_[w, b]  # augmented parameter vector
 
     cost = np.sum((np.dot(X_b, w_b) - y) ** 2) / (2 * m)
-    reg_cost = lambda_ * np.sum(w_b[:-1] ** 2) / (2 * m)
+    reg_cost = lambda_ * np.sum(w_b[:-1]**2) / (2 * m)
 
     total_cost = cost + reg_cost
     return total_cost
@@ -130,22 +127,6 @@ def compute_cost_linear_reg(X, y, w, b, lambda_):
 
 # Run gradient descent
 def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, num_iters, lambda_):
-    """
-    Performs batch gradient descent to learn w and b. Updates w and b by taking
-    num_iters gradient steps with learning rate alpha
-    Parameters:
-      X (ndarray (m,n))   : Data, m examples with n features
-      y (ndarray (m,))    : target values
-      w_in (ndarray (n,)) : initial model parameters  
-      b_in (scalar)       : initial model parameter
-      cost_function       : function to compute cost
-      gradient_function   : function to compute the gradient
-      alpha (float)       : Learning rate
-      num_iters (int)     : number of iterations to run gradient descent
-    Returns:
-      w (ndarray (n,)) : Updated values of parameters 
-      b (scalar)       : Updated value of parameter 
-      """
     # An array to store cost J and w's at each iteration primarily for graphing later
     J_history = []
     w = copy.deepcopy(w_in)  # avoid modifying global w within function

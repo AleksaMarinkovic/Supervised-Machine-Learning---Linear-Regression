@@ -119,3 +119,14 @@ def plotResidualHistogram(residuals):
     plt.xlabel('Residuals')
     plt.ylabel('Frequency')
     plt.show()
+
+def plotResidualsAgainstFitted(residuals, fitted):
+    plt.scatter(fitted, residuals, alpha=0.5)
+
+    # Add labels and title
+    plt.xlabel('Fitted Values')
+    plt.ylabel('Residuals')
+    plt.title('Residuals vs Fitted Values Scatter Plot')
+
+    # Show the plot
+    plt.show()
